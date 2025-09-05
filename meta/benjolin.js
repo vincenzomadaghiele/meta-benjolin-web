@@ -137,3 +137,5 @@ class Benjolin {
     changeFIL_SWP(value){ this.filterFreq.parameters.get('FIL_SWP').value = value; this.FIL_SWP = value; }
 
 } 
+
+export { Benjolin };
