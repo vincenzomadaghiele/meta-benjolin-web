@@ -36,6 +36,7 @@ class Benjolin {
         let hiPassFilter = this.audioContext.createBiquadFilter();
         // compressor
         const compressor = this.audioContext.createDynamicsCompressor();
+        const limiter = this.audioContext.createDynamicsCompressor();
 
         // SET PARAMETER VALUES
         // main parameters
@@ -48,7 +49,7 @@ class Benjolin {
         this.filterFreq.parameters.get('FIL_SWP').value = 0;
         // filter params
         this.biquadFilter.type = "lowpass";
-        this.biquadFilter.Q.value = 2;
+        this.biquadFilter.Q.value = 1;
         this.biquadFilter.frequency.value = 0;
         // oscillators params
         tri01.type = 'triangle';
@@ -62,13 +63,19 @@ class Benjolin {
         // hipass
         hiPassFilter.type = "highpass";
         hiPassFilter.Q.value = 2;
-        hiPassFilter.frequency.value = 10;
+        hiPassFilter.frequency.value = 50;
         // compressor
         compressor.threshold.value = -50;
         compressor.knee.value = 20;
         compressor.ratio.value = 16;
         compressor.attack.value = 0;
         compressor.release.value = 0.2;
+
+        limiter.threshold.value = -15;
+        limiter.knee.value = 5;
+        limiter.ratio.value = 100;
+        limiter.attack.value = 0;
+        limiter.release.value = 0.01;
 
         // start oscillators
         tri01.start()
@@ -119,7 +126,7 @@ class Benjolin {
         this.filterFreq.connect(this.biquadFilter.frequency);
         // main filter and gain compensation
         halfGainNode.connect(this.biquadFilter).connect(this.gainCompensationNode);
-        this.gainCompensationNode.connect(hiPassFilter).connect(compressor).connect(this.gainNode).connect(this.audioContext.destination);
+        this.gainCompensationNode.connect(hiPassFilter).connect(compressor).connect(this.gainNode).connect(limiter).connect(this.audioContext.destination);
 
     }
     changeGain(value){  this.gainNode.gain.value = value;  this.gain = value;  }
