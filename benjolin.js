@@ -38,6 +38,17 @@ class Benjolin {
         const compressor = this.audioContext.createDynamicsCompressor();
         const limiter = this.audioContext.createDynamicsCompressor();
 
+
+        const tanh = audioContext.createWaveShaper();
+        // 3. Generate the tanh curve
+        const curve = new Float32Array(44100);
+        for (let i = 0; i < curve.length; i++) {
+            let x = (i / curve.length) * 2 - 1;
+            curve[i] = Math.tanh(x * 1);
+        }
+        tanh.curve = curve;
+        tanh.oversample = '4x';
+
         // SET PARAMETER VALUES
         // main parameters
         this.O1.parameters.get('FRQ').value = 0;
@@ -49,7 +60,7 @@ class Benjolin {
         this.filterFreq.parameters.get('FIL_SWP').value = 0;
         // filter params
         this.biquadFilter.type = "lowpass";
-        this.biquadFilter.Q.value = 1;
+        this.biquadFilter.Q.value = 0.01;
         this.biquadFilter.frequency.value = 0;
         // oscillators params
         tri01.type = 'triangle';
@@ -124,6 +135,8 @@ class Benjolin {
         tri02.connect(merger4frequency, 0, 1); // substitute with pulse
         merger4frequency.connect(this.filterFreq);
         this.filterFreq.connect(this.biquadFilter.frequency);
+        // this.filterFreq.connect(Math.max(20, Math.min(20000, this.biquadFilter.frequency)));
+        // this.biquadFilter.frequency.exponentialRampToValueAtTime(this.filterFreq, this.audioContext.currentTime + 0.01);
         // main filter and gain compensation
         halfGainNode.connect(this.biquadFilter).connect(this.gainCompensationNode);
         this.gainCompensationNode.connect(hiPassFilter).connect(compressor).connect(this.gainNode).connect(limiter).connect(this.audioContext.destination);

@@ -108,9 +108,14 @@ registerProcessor("comparator", Comparator);
 // filter-freq.js
 class ComputeFilterFreq extends AudioWorkletProcessor {
     static get parameterDescriptors() { return [
-        { name: "FIL_FRQ", defaultValue: 50 }, { name: "FIL_RUN", defaultValue: 100 },
+        { name: "FIL_FRQ", defaultValue: 0 }, { name: "FIL_RUN", defaultValue: 100 },
         { name: "FIL_SWP", defaultValue: 100 }
     ] }
+    constructor() {
+    super();
+    this.currentFreq = 0; // The smoothed value actually used
+    this.smoothing = 0.1;  // Adjust (0.01 to 0.1) for "snappiness"
+    }
     process(inputs, outputs, parameters) {
 
         let inChannelRun = inputs[0][0]; 
@@ -125,7 +130,12 @@ class ComputeFilterFreq extends AudioWorkletProcessor {
             // clamp value
             outValue = Math.min(Math.max(outValue, 0), 127);
             // mtof
-            outChannel[i] = (2 ** ((outValue - 69) / 12)) * 440;
+            let mtof = (2 ** ((outValue - 69) / 12)) * 440
+            const alpha = 0.995; // Smoothing coefficient (0.9 to 0.999)
+            this.currentFreq = (1 - alpha) * mtof + alpha * this.currentFreq;
+
+            outChannel[i] = Math.min(Math.max(this.currentFreq, 10), sampleRate / 2 - 100);
+            // outChannel[i] = (2 ** ((outValue - 69) / 12)) * 440;
         }
         return true;
     }
