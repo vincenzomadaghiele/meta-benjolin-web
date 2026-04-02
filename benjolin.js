@@ -138,6 +138,7 @@ class Benjolin {
         // this.filterFreq.connect(Math.max(20, Math.min(20000, this.biquadFilter.frequency)));
         // this.biquadFilter.frequency.exponentialRampToValueAtTime(this.filterFreq, this.audioContext.currentTime + 0.01);
         // main filter and gain compensation
+        // halfGainNode.connect(this.audioContext.destination);
         halfGainNode.connect(this.biquadFilter).connect(this.gainCompensationNode);
         this.gainCompensationNode.connect(hiPassFilter).connect(compressor).connect(this.gainNode).connect(limiter).connect(this.audioContext.destination);
 
@@ -149,8 +150,9 @@ class Benjolin {
     change02RUN(value){ this.O2.parameters.get('RUN').value = value; this.RUN02 = value; }
     changeFIL_FRQ(value){ this.filterFreq.parameters.get('FIL_FRQ').value = value; this.FIL_FRQ = value;}
     changeFIL_RES(value){ 
-        this.biquadFilter.Q.value = value / 128 * 33 - 3; 
-        this.gainCompensationNode.gain.value = value / 128 * 10 + 2;
+        this.biquadFilter.Q.value = value / 128 * 5; 
+        // this.gainCompensationNode.gain.value = value / 128 * 10 + 2;
+        this.gainCompensationNode.gain.value = 1;
         this.FIL_RES = value;
     }
     changeFIL_RUN(value){ this.filterFreq.parameters.get('FIL_RUN').value = value; this.FIL_RUN = value; }

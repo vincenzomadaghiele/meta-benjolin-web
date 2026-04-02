@@ -15,6 +15,8 @@ class Rungler extends AudioWorkletProcessor {
         this.sh06 = 0;
         this.sh07 = 0;
         this.sh08 = 0;
+        this.logic = 0;
+        this.triggered = false;
     }
     process(inputs, outputs, parameters) {
         let pls01 = inputs[0][0]; 
@@ -30,18 +32,22 @@ class Rungler extends AudioWorkletProcessor {
             } else {
                 zz = 0;
             }
-            zz = zz ^ this.sh01;
+            zz = zz ^ this.sh08;
             xor[i] = zz;
 
-            let xx = 0
-            if (pls02[i] > 0){
-                xx = 1;
-            } else {
-                xx = 0;
+            if (pls02[i] > 0.5){
+                this.logic = 1;
             }
 
+            if (pls02[i] < 0.5){
+                this.triggered = false;
+                this.logic = 0;
+            }
+            // console.log(this.triggered)
+            // console.log(this.logic)
+
             // sample
-            if (xx == 1){
+            if (this.logic == 1 && this.triggered == false){
                 this.sh08 = this.sh07;
                 this.sh07 = this.sh06;
                 this.sh06 = this.sh05;
@@ -50,6 +56,8 @@ class Rungler extends AudioWorkletProcessor {
                 this.sh05 = this.sh02;
                 this.sh02 = this.sh01;
                 this.sh01 = zz;
+                this.triggered = true;
+                // console.log('changed')
             }
 
             // sample by sample
@@ -93,7 +101,7 @@ class Comparator extends AudioWorkletProcessor {
         let outSignal = outputs[0][0]; 
 
         for (let i = 0; i < outSignal.length; i++) {
-            if (tri01 > tri02){
+            if (tri01[i] > tri02[i]){
                 outSignal[i] = 1;
             } else {
                 outSignal[i] = 0;
@@ -130,12 +138,12 @@ class ComputeFilterFreq extends AudioWorkletProcessor {
             // clamp value
             outValue = Math.min(Math.max(outValue, 0), 127);
             // mtof
-            let mtof = (2 ** ((outValue - 69) / 12)) * 440
-            const alpha = 0.995; // Smoothing coefficient (0.9 to 0.999)
-            this.currentFreq = (1 - alpha) * mtof + alpha * this.currentFreq;
+            // let mtof = (2 ** ((outValue - 69) / 12)) * 440
+            // const alpha = 0.995; // Smoothing coefficient (0.9 to 0.999)
+            // this.currentFreq = (1 - alpha) * mtof + alpha * this.currentFreq;
 
-            outChannel[i] = Math.min(Math.max(this.currentFreq, 10), sampleRate / 2 - 100);
-            // outChannel[i] = (2 ** ((outValue - 69) / 12)) * 440;
+            // outChannel[i] = Math.min(Math.max(mtof, 10), sampleRate / 2 - 100);
+            outChannel[i] = (2 ** ((outValue - 69) / 12)) * 440;
         }
         return true;
     }
