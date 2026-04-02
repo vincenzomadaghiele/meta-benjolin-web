@@ -92,7 +92,6 @@ setBenjolin = function (params){
         return;
     }
     let roundedParams = params.map(param => param.toFixed(2));
-    // console.log(roundedParams)
     myBenjolin.changeGain(volumeControl.value);
     myBenjolin.change01FRQ(roundedParams[0]);
     myBenjolin.change02FRQ(roundedParams[1]);

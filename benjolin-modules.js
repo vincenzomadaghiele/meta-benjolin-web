@@ -43,8 +43,6 @@ class Rungler extends AudioWorkletProcessor {
                 this.triggered = false;
                 this.logic = 0;
             }
-            // console.log(this.triggered)
-            // console.log(this.logic)
 
             // sample
             if (this.logic == 1 && this.triggered == false){
@@ -57,7 +55,6 @@ class Rungler extends AudioWorkletProcessor {
                 this.sh02 = this.sh01;
                 this.sh01 = zz;
                 this.triggered = true;
-                // console.log('changed')
             }
 
             // sample by sample
@@ -72,7 +69,7 @@ registerProcessor("rungler", Rungler);
 // osc-processor.js
 class OscProcessor extends AudioWorkletProcessor {
     static get parameterDescriptors() { return [
-        { name: "FRQ", defaultValue: 50 }, { name: "RUN", defaultValue: 100 }
+        { name: "FRQ", defaultValue: 0 }, { name: "RUN", defaultValue: 0 }
     ] }
     process(inputs, outputs, parameters) {
 
@@ -138,11 +135,6 @@ class ComputeFilterFreq extends AudioWorkletProcessor {
             // clamp value
             outValue = Math.min(Math.max(outValue, 0), 127);
             // mtof
-            // let mtof = (2 ** ((outValue - 69) / 12)) * 440
-            // const alpha = 0.995; // Smoothing coefficient (0.9 to 0.999)
-            // this.currentFreq = (1 - alpha) * mtof + alpha * this.currentFreq;
-
-            // outChannel[i] = Math.min(Math.max(mtof, 10), sampleRate / 2 - 100);
             outChannel[i] = (2 ** ((outValue - 69) / 12)) * 440;
         }
         return true;

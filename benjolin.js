@@ -38,17 +38,6 @@ class Benjolin {
         const compressor = this.audioContext.createDynamicsCompressor();
         const limiter = this.audioContext.createDynamicsCompressor();
 
-
-        const tanh = audioContext.createWaveShaper();
-        // 3. Generate the tanh curve
-        const curve = new Float32Array(44100);
-        for (let i = 0; i < curve.length; i++) {
-            let x = (i / curve.length) * 2 - 1;
-            curve[i] = Math.tanh(x * 1);
-        }
-        tanh.curve = curve;
-        tanh.oversample = '4x';
-
         // SET PARAMETER VALUES
         // main parameters
         this.O1.parameters.get('FRQ').value = 0;
@@ -107,14 +96,14 @@ class Benjolin {
         // connect rungler to osc frequencies
         splitter.connect(this.O1, 0, 0);
         const delayedO1 = this.audioContext.createDelay();
-        delayedO1.delayTime.value = 0.0001;
+        delayedO1.delayTime.value = 0.001;
         this.O1.connect(delayedO1);
         delayedO1.connect(tri01.frequency);
         delayedO1.connect(pulse01.frequency); // send to rungler
-        this.O2.parameters.get('RUN').value = 0;
+        // this.O2.parameters.get('RUN').value = 0;
         splitter.connect(this.O2, 0, 0);
         const delayedO2 = this.audioContext.createDelay();
-        delayedO2.delayTime.value = 0.0001;
+        delayedO2.delayTime.value = 0.001;
         this.O2.connect(delayedO2);
         delayedO2.connect(tri02.frequency);
         delayedO2.connect(pulse02.frequency); // send to rungler
@@ -135,12 +124,10 @@ class Benjolin {
         tri02.connect(merger4frequency, 0, 1); // substitute with pulse
         merger4frequency.connect(this.filterFreq);
         this.filterFreq.connect(this.biquadFilter.frequency);
-        // this.filterFreq.connect(Math.max(20, Math.min(20000, this.biquadFilter.frequency)));
-        // this.biquadFilter.frequency.exponentialRampToValueAtTime(this.filterFreq, this.audioContext.currentTime + 0.01);
         // main filter and gain compensation
-        // halfGainNode.connect(this.audioContext.destination);
-        halfGainNode.connect(this.biquadFilter).connect(this.gainCompensationNode);
-        this.gainCompensationNode.connect(hiPassFilter).connect(compressor).connect(this.gainNode).connect(limiter).connect(this.audioContext.destination);
+        halfGainNode.connect(this.biquadFilter).connect(this.gainCompensationNode).connect(hiPassFilter).connect(limiter).connect(this.audioContext.destination);
+        // halfGainNode.connect(this.biquadFilter).connect(this.gainCompensationNode);
+        // this.gainCompensationNode.connect(hiPassFilter).connect(compressor).connect(this.gainNode).connect(limiter).connect(this.audioContext.destination);
 
     }
     changeGain(value){  this.gainNode.gain.value = value;  this.gain = value;  }
@@ -150,7 +137,7 @@ class Benjolin {
     change02RUN(value){ this.O2.parameters.get('RUN').value = value; this.RUN02 = value; }
     changeFIL_FRQ(value){ this.filterFreq.parameters.get('FIL_FRQ').value = value; this.FIL_FRQ = value;}
     changeFIL_RES(value){ 
-        this.biquadFilter.Q.value = value / 128 * 5; 
+        this.biquadFilter.Q.value = value / 128 * 20; 
         // this.gainCompensationNode.gain.value = value / 128 * 10 + 2;
         this.gainCompensationNode.gain.value = 1;
         this.FIL_RES = value;
