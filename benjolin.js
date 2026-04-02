@@ -62,7 +62,7 @@ class Benjolin {
         pulse02.frequency.value = 0;
         // hipass
         hiPassFilter.type = "highpass";
-        hiPassFilter.Q.value = 0.1;
+        hiPassFilter.Q.value = 1;
         hiPassFilter.frequency.value = 50;
         // compressor
         compressor.threshold.value = -50;
@@ -125,7 +125,7 @@ class Benjolin {
         merger4frequency.connect(this.filterFreq);
         this.filterFreq.connect(this.biquadFilter.frequency);
         // main filter and gain compensation
-        halfGainNode.connect(this.biquadFilter).connect(this.gainCompensationNode).connect(hiPassFilter).connect(limiter).connect(this.audioContext.destination);
+        halfGainNode.connect(this.biquadFilter).connect(this.gainCompensationNode).connect(hiPassFilter).connect(limiter).connect(this.gainNode).connect(this.audioContext.destination);
 
     }
     changeGain(value){  this.gainNode.gain.value = value;  this.gain = value;  }
